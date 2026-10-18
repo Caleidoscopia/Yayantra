@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Caleidobeat</title>
+    <link rel="icon" type="image/png" href="img/Logo.png">
+  </head>
+  <body>
+    <div id="inicio">
+      <button id="start" disabled aria-label="Jugar">
+        <img src="/img/logoplay.png" alt="Jugar" draggable="false" />
+      </button>
+      <p id="estado">Cargando...</p>
+    </div>
+    <div id="juego" hidden>
+      <div id="panel">
+        <div id="reloj"></div>
+        <div id="volumen-control">
+          <span id="volumen-icono">🔊</span>
+          <input type="range" id="volumen" min="0" max="100" value="80" aria-label="Volumen" />
+        </div>
+      </div>
+      <div id="slots"></div>
+      <div id="barra"></div>
+    </div>
+    <div id="girar">
+    <div class="girar-icono">📱</div>
+      <p>Girá tu celular para jugar</p>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

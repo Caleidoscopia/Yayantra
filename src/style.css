@@ -1,0 +1,441 @@
+body {
+  font-family: system-ui, sans-serif;
+  color: #eee;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+
+  background-color: #111; /* color de respaldo mientras carga la imagen */
+  background-image: url('/img/fondo.png');
+  background-size: cover; /* la imagen cubre toda la pantalla sin deformarse */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* el fondo no se mueve si la página tiene scroll */
+}
+
+#slots,
+#barra {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.slot {
+  width: clamp(110px, 16vw, 200px);
+  height: clamp(200px, 45vh, 420px);
+  border: 2px dashed #868686;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+}
+
+.slot.ocupado {
+  border-color: transparent; /* el recuadro desaparece, pero el espacio se mantiene */
+}
+
+.slot .ficha {
+  width: 100%;
+  height: 100%;
+}
+
+.ficha {
+  width: 90px;
+  height: 135px;
+  cursor: grab;
+  touch-action: none; /* necesario para arrastrar en celulares */
+}
+
+.ficha img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none; /* los eventos los recibe la ficha, no la imagen */
+}
+
+.ficha.en-uso {
+  opacity: 0.35;
+}
+
+.ficha.fantasma,
+.icono.fantasma {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.icono {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  border-radius: 14px;
+  cursor: grab;
+  touch-action: none; /* necesario para arrastrar en celulares */
+
+  /* degradado: más claro arriba a la izquierda, más oscuro abajo a la derecha */
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--color, #2a2f45) 65%, white) 0%,
+    var(--color, #2a2f45) 55%,
+    color-mix(in srgb, var(--color, #2a2f45) 80%, black) 100%
+  );
+
+  /* sombra que lo separa del fondo + un brillo fino en el borde de arriba */
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+/* al pasar el mouse se levanta un poco */
+.icono:not(.en-uso):hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* los que ya están en la pista se ven "hundidos": sin sombra */
+.icono.en-uso {
+  opacity: 0.35;
+  box-shadow: none;
+}
+
+
+.icono img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+#reloj {
+  --p: 0;
+  position: relative;
+  width: 70px;
+  height: 70px;
+  margin: 0;
+  border-radius: 50%;
+  background: conic-gradient(#4a6cf7 calc(var(--p) * 360deg), #333 0);
+  /* recorta el centro para dejar solo el anillo */
+  -webkit-mask: radial-gradient(circle farthest-side, transparent 24px, #000 25px);
+  mask: radial-gradient(circle farthest-side, transparent 24px, #000 25px);
+}
+
+
+
+.ficha.pendiente {
+  animation: parpadeo 0.5s infinite alternate;
+}
+
+@keyframes parpadeo {
+  from { opacity: 1; }
+  to { opacity: 0.35; }
+}
+
+.ficha {
+  position: relative;
+}
+
+.controles {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+
+.control {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.control.activo {
+  background: #f5a623;
+}
+
+.ficha.silenciada {
+  filter: grayscale(1) brightness(0.6);
+}
+
+#inicio {
+  margin-top: 18vh;
+  text-align: center;
+}
+
+#start {
+  display: block;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.15s, filter 0.15s;
+}
+
+#start img {
+  display: block;
+  width: min(420px, 80vw); /* tamaño del botón: cambialo a gusto */
+  height: auto;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.45)); /* sigue el contorno del PNG */
+  transition: filter 0.15s;
+}
+
+#start:hover:not(:disabled) img {
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.5)); /* la sombra crece al pasar el mouse */
+}
+
+#start:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+#start:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+#start:disabled {
+  opacity: 0.5;
+  filter: grayscale(0.6); /* se ve apagado mientras cargan los sonidos */
+  cursor: default;
+}
+
+#estado {
+  margin-top: 12px;
+  color: #fff;
+  font-size: 18px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6); /* se lee sobre cualquier fondo */
+}
+
+#juego{
+  position: relative;
+  margin-top: 8vh;
+  padding: 96px 0 20px; 
+  background: rgba(0, 0, 0, 0.281); /* violeta oscuro translúcido */
+  backdrop-filter: blur(6px); /* desenfoca el fondo detrás de la franja */
+  -webkit-backdrop-filter: blur(6px);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 1100px) {
+  #juego {
+    padding-top: 100px;
+  }
+}
+
+#panel {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#volumen-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#volumen-icono {
+  font-size: 20px;
+}
+
+#volumen {
+  width: 140px;
+  accent-color: #4a6cf7; /* color de la barra y la perilla */
+  cursor: pointer;
+}
+
+/* Entrada del personaje: sube desde abajo y rebota hasta quedar en su lugar */
+.ficha.entrando img {
+  animation: entrada 0.8s ease-out both;
+}
+
+@keyframes entrada {
+  0%   { transform: translateY(60%); opacity: 0; }
+  25%  { opacity: 1; }
+  45%  { transform: translateY(-8%); }   /* sube y se pasa un poco */
+  65%  { transform: translateY(4%); }    /* rebota hacia abajo */
+  82%  { transform: translateY(-2%); }   /* rebote más chico */
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Los botones aparecen recién cuando el personaje ya se asentó */
+.ficha.entrando .controles {
+  animation: aparecer 0.3s ease-out 0.55s both;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Respeta a quienes tienen desactivadas las animaciones en su sistema */
+@media (prefers-reduced-motion: reduce) {
+  .ficha.entrando img,
+  .ficha.entrando .controles {
+    animation: none;
+  }
+}
+
+/* ---------- Ajustes generales para pantallas táctiles ---------- */
+html,
+body {
+  overscroll-behavior: none;   /* evita "tirar para refrescar" mientras arrastrás */
+  touch-action: manipulation;  /* evita el zoom por doble toque */
+}
+
+img {
+  -webkit-touch-callout: none; /* evita el menú al mantener pulsada una imagen en iPhone */
+}
+
+/* ---------- Aviso para girar el celular ---------- */
+#girar {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #111;
+  color: #fff;
+  font-size: 20px;
+  text-align: center;
+  padding: 24px;
+}
+
+.girar-icono {
+  font-size: 72px;
+  animation: girar-celu 2.4s ease-in-out infinite;
+}
+
+@keyframes girar-celu {
+  0%, 25%   { transform: rotate(0deg); }
+  60%, 100% { transform: rotate(-90deg); }
+}
+
+/* Solo en celulares (ancho chico) y en vertical */
+@media (orientation: portrait) and (max-width: 600px) {
+  #girar {
+    display: flex;
+  }
+}
+
+/* ---------- Diseño compacto: celular en horizontal ---------- */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* centra verticalmente la pantalla de inicio y la franja del juego */
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left); /* respeta la muesca */
+  }
+
+  /* pantalla de inicio */
+  #inicio {
+    margin-top: 0;
+  }
+
+  #start img {
+    width: min(300px, 45vw);
+  }
+
+  #estado {
+    margin-top: 6px;
+    font-size: 15px;
+  }
+
+  #juego {
+    flex: 1; /* ocupa toda la pantalla */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* centra los slots y la barra verticalmente */
+    margin: 0;
+    padding: 52px 0 12px; /* arriba deja lugar para el reloj y el volumen */
+    border: 0; /* sin líneas en los bordes de la pantalla */
+  }
+
+  #juego[hidden] {
+    display: none; /* sin esto, el juego se vería también en la pantalla de inicio */
+  }
+
+  #panel {
+    top: 6px;
+    right: 12px;
+    gap: 10px;
+  }
+
+  #volumen {
+    width: 90px;
+  }
+
+  #reloj {
+    width: 40px;
+    height: 40px;
+    -webkit-mask: radial-gradient(circle farthest-side, transparent 66%, #000 68%);
+    mask: radial-gradient(circle farthest-side, transparent 66%, #000 68%);
+  }
+
+  /* slots: una fila, sin separación entre ellos */
+  #slots,
+  #barra {
+    flex-wrap: nowrap;
+    margin: 0 0 8px;
+    padding: 0 12px;
+  }
+
+  #slots {
+    gap: 5px;
+  }
+
+  #barra {
+    gap: 6px;
+  }
+
+  .slot {
+    flex: 0 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    aspect-ratio: 0.6; /* ancho = 55% del alto: más angosto = personajes más juntos */
+    height: calc(100vh - 150px);
+    height: min(calc(100dvh - 150px), 340px); /* aprovecha toda la altura disponible */
+  }
+
+  .icono {
+    flex: 0 1 56px;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 10px;
+  }
+
+  .control {
+    width: 30px;
+    height: 30px;
+  }
+}
