@@ -199,7 +199,19 @@ function animarReloj() {
   requestAnimationFrame(animarReloj);
 }
 
-cargarPistas(personajes)
+// Descarga las imágenes antes de empezar, para que no tarden la primera vez que se usan
+const imagenesPrecargadas = [];
+
+function precargarImagen(url) {
+  const img = new Image();
+  img.src = url;
+  imagenesPrecargadas.push(img); // se guarda la referencia para que el navegador no las descarte
+  return img.decode().catch(() => {}); // si una falla, no frena el juego
+}
+
+const urlsImagenes = [...new Set(personajes.flatMap((p) => [p.imagen, p.icono]))];
+
+Promise.all([cargarPistas(personajes), ...urlsImagenes.map(precargarImagen)])
   .then(() => {
     btnStart.disabled = false;
     estado.textContent = '';
@@ -207,17 +219,17 @@ cargarPistas(personajes)
   .catch((error) => {
     console.error(error);
     estado.textContent = 'Error al cargar los sonidos';
-  });
+});
 
-  async function intentarPantallaCompleta() {
-  try {
-    if (matchMedia('(pointer: coarse)').matches && document.documentElement.requestFullscreen) {
-      await document.documentElement.requestFullscreen();
-      await screen.orientation?.lock?.('landscape');
-    }
-  } catch {
-    // no soportado: se ignora
+async function intentarPantallaCompleta() {
+try {
+  if (matchMedia('(pointer: coarse)').matches && document.documentElement.requestFullscreen) {
+    await document.documentElement.requestFullscreen();
+    await screen.orientation?.lock?.('landscape');
   }
+} catch {
+  // no soportado: se ignora
+}
 }
 
 btnStart.addEventListener('click', async () => {
