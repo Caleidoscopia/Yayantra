@@ -1,5 +1,5 @@
 // Un personaje = un sonido. Para sumar uno nuevo, agregá una línea.
-export const personajes = [
+export const datos = [
   { id: 'p1', nombre: 'Personaje 1', archivo: '/audio/loop1.wav', imagen: '/img/personaje1.png', icono: '/img/pads.png', color: '#3fd387' },
   { id: 'p2', nombre: 'Personaje 2', archivo: '/audio/loop2.wav', imagen: '/img/personaje2.png', icono: '/img/arpa.png', color: '#9f5de0' },
   { id: 'p3', nombre: 'Personaje 3', archivo: '/audio/loop3.wav', imagen: '/img/personaje3.png', icono: '/img/theremin.png', color: '#6e9ee0' },
@@ -12,3 +12,14 @@ export const personajes = [
   { id: 'p10', nombre: 'Personaje 10', archivo: '/audio/loop10.wav', imagen: '/img/personaje10.png', icono: '/img/arpa.png', color: '#9f5de0' },
   { id: 'p11', nombre: 'Personaje 11', archivo: '/audio/loop11.wav', imagen: '/img/personaje11.png', icono: '/img/pads.png', color: '#3fd387' },
 ];
+
+// Agrega el prefijo del sitio a cada ruta ('/Yayantra/' en GitHub Pages, '/' en local)
+const base = import.meta.env.BASE_URL;
+const ruta = (r) => base + r.replace(/^\//, '');
+
+export const personajes = datos.map((p) => ({
+  ...p,
+  archivo: ruta(p.archivo),
+  imagen: ruta(p.imagen),
+  icono: ruta(p.icono),
+}));
